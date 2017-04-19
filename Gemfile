@@ -8,6 +8,9 @@ eval_gemfile local_gemfile if File.readable?(local_gemfile)
 gemspec
 
 version = ENV['RAILS_VERSION'] || '4.2'
+major_version = version.split('.').first
+
+gem 'active_model-errors_details' if (major_version == '3' || major_version == '4')
 
 if version == 'master'
   gem 'rack', github: 'rack/rack'
@@ -29,6 +32,8 @@ else
   gem 'actionpack', gem_version
   gem 'activerecord', gem_version, group: :test
 end
+
+
 
 # https://github.com/bundler/bundler/blob/89a8778c19269561926cea172acdcda241d26d23/lib/bundler/dependency.rb#L30-L54
 @windows_platforms = [:mswin, :mingw, :x64_mingw]

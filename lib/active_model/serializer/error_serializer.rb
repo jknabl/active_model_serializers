@@ -3,7 +3,7 @@ module ActiveModel
     class ErrorSerializer < ActiveModel::Serializer
       # @return [Hash<field_name,Array<error_message>>]
       def as_json
-        object.errors.messages
+        object.errors.details
       end
 
       def success?

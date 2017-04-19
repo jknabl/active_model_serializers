@@ -19,6 +19,7 @@ module ActiveModelSerializers
           @resource.errors.add(:name, 'cannot be nil')
 
           serializable_resource = ActiveModelSerializers::SerializableResource.new(@resource, options)
+
           assert_equal serializable_resource.serializer_instance.attributes, {}
           assert_equal serializable_resource.serializer_instance.object, @resource
 
@@ -30,6 +31,7 @@ module ActiveModelSerializers
               }
             ]
           }
+
           assert_equal serializable_resource.as_json, expected_errors_object
         end
 
@@ -39,21 +41,24 @@ module ActiveModelSerializers
             adapter: :json_api
           }
 
-          @resource.errors.add(:name, 'cannot be nil')
-          @resource.errors.add(:name, 'must be longer')
+          @resource.errors.add(:name, 'cannot be nil', code: '1234')
+          @resource.errors.add(:name, 'must be longer', code: '1337')
           @resource.errors.add(:id, 'must be a uuid')
 
+
           serializable_resource = ActiveModelSerializers::SerializableResource.new(@resource, options)
+
           assert_equal serializable_resource.serializer_instance.attributes, {}
           assert_equal serializable_resource.serializer_instance.object, @resource
 
           expected_errors_object = {
             errors: [
-              { source: { pointer: '/data/attributes/name' }, detail: 'cannot be nil' },
-              { source: { pointer: '/data/attributes/name' }, detail: 'must be longer' },
-              { source: { pointer: '/data/attributes/id' }, detail: 'must be a uuid' }
+              { source: { pointer: '/data/attributes/name' }, detail: 'cannot be nil', code: '1234'},
+              { source: { pointer: '/data/attributes/name' }, detail: 'must be longer', code: '1337' },
+              { source: { pointer: '/data/attributes/id' }, detail: 'must be a uuid'}
             ]
           }
+
           assert_equal serializable_resource.as_json, expected_errors_object
         end
 

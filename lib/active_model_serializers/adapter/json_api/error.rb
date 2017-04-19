@@ -11,11 +11,10 @@ module ActiveModelSerializers
         # @param [ActiveModel::Serializer::ErrorSerializer] error_serializer
         # @return [Array<Symbol, Array<String>>] i.e. attribute_name, [attribute_errors]
         def self.resource_errors(error_serializer, options)
-          error_serializer.as_json.flat_map do |attribute_name, attribute_errors|
-            attribute_name = JsonApi.send(:transform_key_casing!, attribute_name,
-              options)
-            attribute_error_objects(attribute_name, attribute_errors)
-          end
+          error_serializer.as_json.map do |attribute_name, array_of_error_objects|
+            attribute_name = JsonApi.send(:transform_key_casing!, attribute_name, options)
+            attribute_error_objects(attribute_name, array_of_error_objects)
+          end.flatten
         end
 
         # definition:
@@ -44,12 +43,14 @@ module ActiveModelSerializers
         #     detail: 'something went terribly wrong',
         #     status: '500'
         #   }.merge!(errorSource)
-        def self.attribute_error_objects(attribute_name, attribute_errors)
-          attribute_errors.map do |attribute_error|
-            {
+        def self.attribute_error_objects(attribute_name, array_of_error_objects)
+          array_of_error_objects.map do |obj|
+            r = {
               source: error_source(:pointer, attribute_name),
-              detail: attribute_error
+              detail: obj[:error]
             }
+            r.merge!(code: obj[:code]) if obj.key? :code
+            r
           end
         end
 
